@@ -4,14 +4,16 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 using Microsoft.AspNet.Identity;
 
 namespace KriaSoft.AspNet.Identity.EntityFramework
 {
+
     public partial class UserStore<TKey, TUser, TLogin, TRole, TClaim> :
-        IUserPasswordStore<TUser, TKey>, IUserLoginStore<TUser, TKey>
+        IUserPasswordStore<TUser, TKey>, IUserLoginStore<TUser, TKey>, IUserClaimStore<TUser, TKey>
         where TKey : IEquatable<TKey>
         where TUser : IdentityUser<TKey, TLogin, TRole, TClaim>
         where TLogin : IdentityLogin<TKey>
@@ -165,6 +167,63 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             if (item != null)
             {
                 user.Logins.Remove(item);
+            }
+
+            return Task.FromResult(0);
+        } 
+        #endregion
+
+        #region IUserClaimStore<TUser, TKey>
+        public Task AddClaimAsync(TUser user, Claim claim)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            if (claim == null)
+            {
+                throw new ArgumentNullException("claim");
+            }
+
+            var item = Activator.CreateInstance<TClaim>();
+            item.UserId = user.Id;
+            item.ClaimType = claim.Type;
+            item.ClaimValue = claim.Value;
+            user.Claims.Add(item);
+            return Task.FromResult(0);
+        }
+
+        public Task<IList<Claim>> GetClaimsAsync(TUser user)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            return Task.FromResult<IList<Claim>>(user.Claims.Select(c => new Claim(c.ClaimType, c.ClaimValue)).ToList());
+        }
+
+        public Task RemoveClaimAsync(TUser user, Claim claim)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            if (claim == null)
+            {
+                throw new ArgumentNullException("claim");
+            }
+
+            foreach (var item in user.Claims.Where(uc => uc.ClaimValue == claim.Value && uc.ClaimType == claim.Type).ToList())
+            {
+                user.Claims.Remove(item);
+            }
+
+            foreach (var item in this.db.Set<TClaim>().Where(uc => uc.UserId.Equals(user.Id) && uc.ClaimValue == claim.Value && uc.ClaimType == claim.Type).ToList())
+            {
+                this.db.Set<TClaim>().Remove(item);
             }
 
             return Task.FromResult(0);

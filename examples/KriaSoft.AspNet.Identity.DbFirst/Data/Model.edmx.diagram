@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="0777c90b9af74a5d8d68e8917899b648" Name="Identity">
+        <EntityTypeShape EntityType="Application.User" Width="1.5" PointX="0.5" PointY="0.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Application.UserClaim" Width="1.5" PointX="5.75" PointY="0.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Application.UserLogin" Width="1.5" PointX="2.25" PointY="0.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Application.UserRole" Width="1.5" PointX="4" PointY="0.5" IsExpanded="true" />
+        <AssociationConnector Association="Application.FK_UserClaim_User" ManuallyRouted="false" />
+        <AssociationConnector Association="Application.FK_UserLogin_User" ManuallyRouted="false" />
+        <AssociationConnector Association="Application.UserUserRole" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

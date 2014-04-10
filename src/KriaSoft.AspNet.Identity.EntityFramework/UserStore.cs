@@ -13,7 +13,8 @@ using Microsoft.AspNet.Identity;
 namespace KriaSoft.AspNet.Identity.EntityFramework
 {
     public partial class UserStore<TKey, TUser, TLogin, TRole, TClaim> :
-        IUserPasswordStore<TUser, TKey>, IUserLoginStore<TUser, TKey>, IUserClaimStore<TUser, TKey>, IUserRoleStore<TUser, TKey>
+        IUserPasswordStore<TUser, TKey>, IUserLoginStore<TUser, TKey>, IUserClaimStore<TUser, TKey>, IUserRoleStore<TUser, TKey>,
+        IUserSecurityStampStore<TUser, TKey>
         where TKey : IEquatable<TKey>
         where TUser : IdentityUser<TKey, TLogin, TRole, TClaim>
         where TLogin : IdentityLogin<TKey>
@@ -300,6 +301,29 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
                 user.Roles.Remove(userRole);
             }
 
+            return Task.FromResult(0);
+        } 
+        #endregion
+
+        #region IUserSecurityStampStore<TUser, TKey>
+        public Task<string> GetSecurityStampAsync(TUser user)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            return Task.FromResult(user.SecurityStamp);
+        }
+
+        public Task SetSecurityStampAsync(TUser user, string stamp)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            user.SecurityStamp = stamp;
             return Task.FromResult(0);
         } 
         #endregion

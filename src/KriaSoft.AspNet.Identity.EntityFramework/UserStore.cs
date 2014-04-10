@@ -15,7 +15,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
     public partial class UserStore<TKey, TUser, TLogin, TRole, TClaim> :
         IQueryableUserStore<TUser, TKey>, IUserPasswordStore<TUser, TKey>, IUserLoginStore<TUser, TKey>,
         IUserClaimStore<TUser, TKey>, IUserRoleStore<TUser, TKey>, IUserSecurityStampStore<TUser, TKey>,
-        IUserEmailStore<TUser, TKey>
+        IUserEmailStore<TUser, TKey>, IUserPhoneNumberStore<TUser, TKey>
         where TKey : IEquatable<TKey>
         where TUser : IdentityUser<TKey, TLogin, TRole, TClaim>
         where TLogin : IdentityLogin<TKey>
@@ -384,6 +384,50 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             }
 
             user.EmailConfirmed = confirmed;
+            return Task.FromResult(0);
+        }
+
+        //// IUserPhoneNumberStore<TUser, TKey>
+
+        public Task<string> GetPhoneNumberAsync(TUser user)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            return Task.FromResult(user.PhoneNumber);
+        }
+
+        public Task<bool> GetPhoneNumberConfirmedAsync(TUser user)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            return Task.FromResult(user.PhoneNumberConfirmed);
+        }
+
+        public Task SetPhoneNumberAsync(TUser user, string phoneNumber)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            user.PhoneNumber = phoneNumber;
+            return Task.FromResult(0);
+        }
+
+        public Task SetPhoneNumberConfirmedAsync(TUser user, bool confirmed)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            user.PhoneNumberConfirmed = confirmed;
             return Task.FromResult(0);
         }
 

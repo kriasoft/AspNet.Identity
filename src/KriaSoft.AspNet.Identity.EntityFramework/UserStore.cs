@@ -13,8 +13,9 @@ using Microsoft.AspNet.Identity;
 namespace KriaSoft.AspNet.Identity.EntityFramework
 {
     public partial class UserStore<TKey, TUser, TLogin, TRole, TClaim> :
-        IUserPasswordStore<TUser, TKey>, IUserLoginStore<TUser, TKey>, IUserClaimStore<TUser, TKey>, IUserRoleStore<TUser, TKey>,
-        IUserSecurityStampStore<TUser, TKey>
+        IQueryableUserStore<TUser, TKey>, IUserPasswordStore<TUser, TKey>, IUserLoginStore<TUser, TKey>,
+        IUserClaimStore<TUser, TKey>, IUserRoleStore<TUser, TKey>, IUserSecurityStampStore<TUser, TKey>,
+        IUserEmailStore<TUser, TKey>
         where TKey : IEquatable<TKey>
         where TUser : IdentityUser<TKey, TLogin, TRole, TClaim>
         where TLogin : IdentityLogin<TKey>
@@ -33,7 +34,15 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             this.db = db;
         }
 
-        #region IUserStore<TUser, Key>
+        //// IQueryableUserStore<TUser, TKey>
+
+        public IQueryable<TUser> Users
+        {
+            get { return this.db.Set<TUser>(); }
+        }
+
+        //// IUserStore<TUser, Key>
+
         public Task CreateAsync(TUser user)
         {
             this.db.Set<TUser>().Add(user);
@@ -65,9 +74,9 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             this.db.Entry<TUser>(user).State = EntityState.Modified;
             return this.db.SaveChangesAsync();
         } 
-        #endregion
 
-        #region IUserPasswordStore<TUser, Key>
+        //// IUserPasswordStore<TUser, Key>
+
         public Task<string> GetPasswordHashAsync(TUser user)
         {
             if (user == null)
@@ -93,9 +102,9 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             user.PasswordHash = passwordHash;
             return Task.FromResult(0);
         } 
-        #endregion
 
-        #region IUserLoginStore<TUser, Key>
+        //// IUserLoginStore<TUser, Key>
+
         public Task AddLoginAsync(TUser user, UserLoginInfo login)
         {
             if (user == null)
@@ -172,9 +181,9 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
 
             return Task.FromResult(0);
         } 
-        #endregion
 
-        #region IUserClaimStore<TUser, TKey>
+        //// IUserClaimStore<TUser, TKey>
+
         public Task AddClaimAsync(TUser user, Claim claim)
         {
             if (user == null)
@@ -229,9 +238,9 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
 
             return Task.FromResult(0);
         } 
-        #endregion
 
-        #region IUserRoleStore<TUser, TKey>
+        //// IUserRoleStore<TUser, TKey>
+
         public Task AddToRoleAsync(TUser user, string roleName)
         {
             if (user == null)
@@ -303,9 +312,9 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
 
             return Task.FromResult(0);
         } 
-        #endregion
 
-        #region IUserSecurityStampStore<TUser, TKey>
+        //// IUserSecurityStampStore<TUser, TKey>
+
         public Task<string> GetSecurityStampAsync(TUser user)
         {
             if (user == null)
@@ -326,7 +335,59 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             user.SecurityStamp = stamp;
             return Task.FromResult(0);
         } 
-        #endregion
+
+        //// IUserEmailStore<TUser, TKey>
+
+        public Task<TUser> FindByEmailAsync(string email)
+        {
+            return this.db.Set<TUser>()
+                .Include(u => u.Logins).Include(u => u.Roles).Include(u => u.Claims)
+                .FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        public Task<string> GetEmailAsync(TUser user)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            return Task.FromResult(user.Email);
+        }
+
+        public Task<bool> GetEmailConfirmedAsync(TUser user)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            return Task.FromResult(user.EmailConfirmed);
+        }
+
+        public Task SetEmailAsync(TUser user, string email)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            user.Email = email;
+            return Task.FromResult(0);
+        }
+
+        public Task SetEmailConfirmedAsync(TUser user, bool confirmed)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            user.EmailConfirmed = confirmed;
+            return Task.FromResult(0);
+        }
+
+        //// IDisposable
 
         public void Dispose()
         {

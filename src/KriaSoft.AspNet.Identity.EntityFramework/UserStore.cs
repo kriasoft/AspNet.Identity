@@ -15,7 +15,8 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
     public partial class UserStore<TKey, TUser, TLogin, TRole, TClaim> :
         IQueryableUserStore<TUser, TKey>, IUserPasswordStore<TUser, TKey>, IUserLoginStore<TUser, TKey>,
         IUserClaimStore<TUser, TKey>, IUserRoleStore<TUser, TKey>, IUserSecurityStampStore<TUser, TKey>,
-        IUserEmailStore<TUser, TKey>, IUserPhoneNumberStore<TUser, TKey>
+        IUserEmailStore<TUser, TKey>, IUserPhoneNumberStore<TUser, TKey>, IUserTwoFactorStore<TUser, TKey>,
+        IUserLockoutStore<TUser, TKey>
         where TKey : IEquatable<TKey>
         where TUser : IdentityUser<TKey, TLogin, TRole, TClaim>
         where TLogin : IdentityLogin<TKey>
@@ -428,6 +429,108 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             }
 
             user.PhoneNumberConfirmed = confirmed;
+            return Task.FromResult(0);
+        }
+
+        //// IUserTwoFactorStore<TUser, TKey>
+
+        public Task<bool> GetTwoFactorEnabledAsync(TUser user)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            return Task.FromResult(user.TwoFactorEnabled);
+        }
+
+        public Task SetTwoFactorEnabledAsync(TUser user, bool enabled)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            user.TwoFactorEnabled = enabled;
+            return Task.FromResult(0);
+        }
+
+        //// IUserLockoutStore<TUser, TKey>
+
+        public Task<int> GetAccessFailedCountAsync(TUser user)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            return Task.FromResult(user.AccessFailedCount);
+        }
+
+        public Task<bool> GetLockoutEnabledAsync(TUser user)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            return Task.FromResult(user.LockoutEnabled);
+        }
+
+        public Task<DateTimeOffset> GetLockoutEndDateAsync(TUser user)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            return Task.FromResult(
+                user.LockoutEndDateUtc.HasValue ?
+                    new DateTimeOffset(DateTime.SpecifyKind(user.LockoutEndDateUtc.Value, DateTimeKind.Utc)) :
+                    new DateTimeOffset());
+        }
+
+        public Task<int> IncrementAccessFailedCountAsync(TUser user)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            user.AccessFailedCount++;
+            return Task.FromResult(user.AccessFailedCount);
+        }
+
+        public Task ResetAccessFailedCountAsync(TUser user)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            user.AccessFailedCount = 0;
+            return Task.FromResult(0);
+        }
+
+        public Task SetLockoutEnabledAsync(TUser user, bool enabled)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            user.LockoutEnabled = enabled;
+            return Task.FromResult(0);
+        }
+
+        public Task SetLockoutEndDateAsync(TUser user, DateTimeOffset lockoutEnd)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            user.LockoutEndDateUtc = lockoutEnd == DateTimeOffset.MinValue ? null : new DateTime?(lockoutEnd.UtcDateTime);
             return Task.FromResult(0);
         }
 

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -11,9 +12,8 @@ using Microsoft.AspNet.Identity;
 
 namespace KriaSoft.AspNet.Identity.EntityFramework
 {
-
     public partial class UserStore<TKey, TUser, TLogin, TRole, TClaim> :
-        IUserPasswordStore<TUser, TKey>, IUserLoginStore<TUser, TKey>, IUserClaimStore<TUser, TKey>
+        IUserPasswordStore<TUser, TKey>, IUserLoginStore<TUser, TKey>, IUserClaimStore<TUser, TKey>, IUserRoleStore<TUser, TKey>
         where TKey : IEquatable<TKey>
         where TUser : IdentityUser<TKey, TLogin, TRole, TClaim>
         where TLogin : IdentityLogin<TKey>
@@ -224,6 +224,80 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             foreach (var item in this.db.Set<TClaim>().Where(uc => uc.UserId.Equals(user.Id) && uc.ClaimValue == claim.Value && uc.ClaimType == claim.Type).ToList())
             {
                 this.db.Set<TClaim>().Remove(item);
+            }
+
+            return Task.FromResult(0);
+        } 
+        #endregion
+
+        #region IUserRoleStore<TUser, TKey>
+        public Task AddToRoleAsync(TUser user, string roleName)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            if (string.IsNullOrWhiteSpace(roleName))
+            {
+                throw new ArgumentException(Resources.ValueCannotBeNullOrEmpty, "roleName");
+            }
+
+            var userRole = this.db.Set<TRole>().SingleOrDefault(r => r.Name == roleName);
+
+            if (userRole == null)
+            {
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.RoleNotFound, new object[] { roleName }));
+            }
+
+            user.Roles.Add(userRole);
+            return Task.FromResult(0);
+        }
+
+        public Task<IList<string>> GetRolesAsync(TUser user)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            return Task.FromResult<IList<string>>(user.Roles.Join(this.db.Set<TRole>(), ur => ur.Id, r => r.Id, (ur, r) => r.Name).ToList());
+        }
+
+        public Task<bool> IsInRoleAsync(TUser user, string roleName)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            if (string.IsNullOrWhiteSpace(roleName))
+            {
+                throw new ArgumentException(Resources.ValueCannotBeNullOrEmpty, "roleName");
+            }
+
+            return
+                Task.FromResult<bool>(
+                    this.db.Set<TRole>().Any(r => r.Name == roleName && r.Users.Any(u => u.Id.Equals(user.Id))));
+        }
+
+        public Task RemoveFromRoleAsync(TUser user, string roleName)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            if (string.IsNullOrWhiteSpace(roleName))
+            {
+                throw new ArgumentException(Resources.ValueCannotBeNullOrEmpty, "roleName");
+            }
+
+            var userRole = user.Roles.SingleOrDefault(r => r.Name == roleName);
+
+            if (userRole != null)
+            {
+                user.Roles.Remove(userRole);
             }
 
             return Task.FromResult(0);

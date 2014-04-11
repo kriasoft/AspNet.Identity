@@ -19,10 +19,14 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             this.db = db;
         }
 
+        //// IQueryableRoleStore<TRole, TKey>
+
         public IQueryable<TRole> Roles
         {
             get { return this.db.Set<TRole>(); }
         }
+
+        //// IRoleStore<TRole, TKey>
 
         public virtual Task CreateAsync(TRole role)
         {
@@ -66,6 +70,8 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             this.db.Entry(role).State = EntityState.Modified;
             return this.db.SaveChangesAsync();
         }
+
+        //// IDisposable
 
         public void Dispose()
         {

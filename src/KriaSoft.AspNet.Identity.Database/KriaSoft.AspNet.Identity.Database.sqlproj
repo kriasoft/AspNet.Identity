@@ -23,7 +23,6 @@
     <SqlServerVerification>False</SqlServerVerification>
     <IncludeCompositeObjects>True</IncludeCompositeObjects>
     <TargetDatabaseSet>True</TargetDatabaseSet>
-    <GenerateCreateScript>False</GenerateCreateScript>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -58,17 +57,17 @@
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
   <ItemGroup>
     <Folder Include="Properties" />
-    <Folder Include="User Defined Types" />
     <Folder Include="Publish Profiles" />
     <Folder Include="Tables" />
+    <Folder Include="User Defined Types" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="User Defined Types\Flag.sql" />
     <Build Include="Tables\User.sql" />
     <Build Include="Tables\UserClaim.sql" />
     <Build Include="Tables\UserLogin.sql" />
     <Build Include="Tables\UserRole.sql" />
     <Build Include="Tables\UserUserRole.sql" />
+    <Build Include="User Defined Types\Flag.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Publish Profiles\Local.publish.xml" />

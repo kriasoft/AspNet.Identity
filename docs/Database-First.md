@@ -17,7 +17,7 @@ See ASP.NET Identity Database-First model example:
 
 ### 3. Copy UserEntity.cs, UserRoleEntity.cs, RoleStore.cs, UserStore.cs and Resources into your project
 
-> See: `./src/examples/KriaSoft.AspNet.Identity.EntityFramework/`
+> See: `./src/KriaSoft.AspNet.Identity.EntityFramework/`
 
 And make sure property names in User, UserLogin, UserRole and UserClaim entities match the ones used in RoleStore and UserStore providers.
 

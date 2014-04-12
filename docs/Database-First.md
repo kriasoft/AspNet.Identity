@@ -19,6 +19,8 @@ See ASP.NET Identity Database-First model example:
 
 And make sure property names in User, UserLogin, UserRole and UserClaim entities match the ones used in RoleStore and UserStore providers.
 
+![ASP.NET Identity Model](http://i.imgur.com/KHDqq3B.png)
+
 ### 4. Done! You can use it like this:
 
 ```

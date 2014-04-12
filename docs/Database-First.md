@@ -7,6 +7,8 @@ SQL Database Project (SSDT):
 
 > `./src/KriaSoft.AspNet.Identity.Database`
 
+You can publish it by double-clicking on the `./Publish Profiles/Local.publish.xml` file in the Solution Explorer.
+
 ### 2. Generate Entity Framework model using EF Designer
 
 See ASP.NET Identity Database-First model example:

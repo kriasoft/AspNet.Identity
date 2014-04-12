@@ -7,19 +7,21 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace KriaSoft.AspNet.Identity.DbFirst.Data
+namespace KriaSoft.AspNet.Identity.EntityFramework
 {
     using System;
     using System.Collections.Generic;
     
-    using KriaSoft.AspNet.Identity.EntityFramework;
-    
-    public partial class UserRole : IdentityRole<int, IdentityUser<int, UserLogin, UserRole, UserClaim>>
+    public partial class UserRole
     {
         public UserRole()
         {
+            this.Users = new HashSet<User>();
         }
     
+        public int Id { get; set; }
+        public string Name { get; set; }
     
+        public virtual ICollection<User> Users { get; set; }
     }
 }

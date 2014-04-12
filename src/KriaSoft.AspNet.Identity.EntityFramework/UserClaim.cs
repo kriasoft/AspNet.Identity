@@ -7,19 +7,18 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace KriaSoft.AspNet.Identity.DbFirst.Data
+namespace KriaSoft.AspNet.Identity.EntityFramework
 {
     using System;
     using System.Collections.Generic;
     
-    using KriaSoft.AspNet.Identity.EntityFramework;
-    
-    public partial class User : IdentityUser<int, UserLogin, UserRole, UserClaim>
+    public partial class UserClaim
     {
-        public User()
-        {
-        }
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public string ClaimType { get; set; }
+        public string ClaimValue { get; set; }
     
-    
+        public virtual User User { get; set; }
     }
 }

@@ -53,12 +53,10 @@ using System.Linq;
 }
 #>
 
-using KriaSoft.AspNet.Identity.EntityFramework;
-
-<#=Accessibility.ForType(container)#> partial class <#=code.Escape(container)#> : IdentityDbContext<int, User, UserLogin, UserRole, UserClaim>
+<#=Accessibility.ForType(container)#> partial class <#=code.Escape(container)#> : DbContext
 {
     public <#=code.Escape(container)#>()
-        : base()
+        : base("name=<#=container.Name#>")
     {
 <#
 if (!loader.IsLazyLoadingEnabled(container))
@@ -90,7 +88,6 @@ foreach (var entitySet in container.BaseEntitySets.OfType<EntitySet>())
 <#
     foreach (var entitySet in container.BaseEntitySets.OfType<EntitySet>())
     {
-        if (new[] { "Users", "UserLogins", "UserRoles", "UserClaims" }.Contains(entitySet.Name)) continue;
 #>
     <#=codeStringGenerator.DbSet(entitySet)#>
 <#

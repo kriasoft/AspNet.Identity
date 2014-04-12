@@ -12,20 +12,15 @@ using Microsoft.AspNet.Identity;
 
 namespace KriaSoft.AspNet.Identity.EntityFramework
 {
-    public partial class UserStore<TKey, TUser, TLogin, TRole, TClaim> :
-        IQueryableUserStore<TUser, TKey>, IUserPasswordStore<TUser, TKey>, IUserLoginStore<TUser, TKey>,
-        IUserClaimStore<TUser, TKey>, IUserRoleStore<TUser, TKey>, IUserSecurityStampStore<TUser, TKey>,
-        IUserEmailStore<TUser, TKey>, IUserPhoneNumberStore<TUser, TKey>, IUserTwoFactorStore<TUser, TKey>,
-        IUserLockoutStore<TUser, TKey>
-        where TKey : IEquatable<TKey>
-        where TUser : IdentityUser<TKey, TLogin, TRole, TClaim>
-        where TLogin : IdentityLogin<TKey>
-        where TRole : IdentityRole<TKey, IdentityUser<TKey, TLogin, TRole, TClaim>>
-        where TClaim : IdentityClaim<TKey>
+    public partial class UserStore :
+        IQueryableUserStore<User, int>, IUserPasswordStore<User, int>, IUserLoginStore<User, int>,
+        IUserClaimStore<User, int>, IUserRoleStore<User, int>, IUserSecurityStampStore<User, int>,
+        IUserEmailStore<User, int>, IUserPhoneNumberStore<User, int>, IUserTwoFactorStore<User, int>,
+        IUserLockoutStore<User, int>
     {
-        private readonly DbContext db;
+        private readonly ApplicationDbContext db;
 
-        public UserStore(DbContext db)
+        public UserStore(ApplicationDbContext db)
         {
             if (db == null)
             {
@@ -35,50 +30,50 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             this.db = db;
         }
 
-        //// IQueryableUserStore<TUser, TKey>
+        //// IQueryableUserStore<User, int>
 
-        public IQueryable<TUser> Users
+        public IQueryable<User> Users
         {
-            get { return this.db.Set<TUser>(); }
+            get { return this.db.Users; }
         }
 
-        //// IUserStore<TUser, Key>
+        //// IUserStore<User, Key>
 
-        public Task CreateAsync(TUser user)
+        public Task CreateAsync(User user)
         {
-            this.db.Set<TUser>().Add(user);
+            this.db.Users.Add(user);
             return this.db.SaveChangesAsync();
         }
 
-        public Task DeleteAsync(TUser user)
+        public Task DeleteAsync(User user)
         {
-            this.db.Set<TUser>().Remove(user);
+            this.db.Users.Remove(user);
             return this.db.SaveChangesAsync();
         }
 
-        public Task<TUser> FindByIdAsync(TKey userId)
+        public Task<User> FindByIdAsync(int userId)
         {
-            return this.db.Set<TUser>()
+            return this.db.Users
                 .Include(u => u.Logins).Include(u => u.Roles).Include(u => u.Claims)
                 .FirstOrDefaultAsync(u => u.Id.Equals(userId));
         }
 
-        public Task<TUser> FindByNameAsync(string userName)
+        public Task<User> FindByNameAsync(string userName)
         {
-            return this.db.Set<TUser>()
+            return this.db.Users
                 .Include(u => u.Logins).Include(u => u.Roles).Include(u => u.Claims)
                 .FirstOrDefaultAsync(u => u.UserName == userName);
         }
 
-        public Task UpdateAsync(TUser user)
+        public Task UpdateAsync(User user)
         {
-            this.db.Entry<TUser>(user).State = EntityState.Modified;
+            this.db.Entry<User>(user).State = EntityState.Modified;
             return this.db.SaveChangesAsync();
         } 
 
-        //// IUserPasswordStore<TUser, Key>
+        //// IUserPasswordStore<User, Key>
 
-        public Task<string> GetPasswordHashAsync(TUser user)
+        public Task<string> GetPasswordHashAsync(User user)
         {
             if (user == null)
             {
@@ -88,12 +83,12 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(user.PasswordHash);
         }
 
-        public Task<bool> HasPasswordAsync(TUser user)
+        public Task<bool> HasPasswordAsync(User user)
         {
             return Task.FromResult(user.PasswordHash != null);
         }
 
-        public Task SetPasswordHashAsync(TUser user, string passwordHash)
+        public Task SetPasswordHashAsync(User user, string passwordHash)
         {
             if (user == null)
             {
@@ -104,9 +99,9 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(0);
         } 
 
-        //// IUserLoginStore<TUser, Key>
+        //// IUserLoginStore<User, Key>
 
-        public Task AddLoginAsync(TUser user, UserLoginInfo login)
+        public Task AddLoginAsync(User user, UserLoginInfo login)
         {
             if (user == null)
             {
@@ -118,7 +113,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
                 throw new ArgumentNullException("login");
             }
 
-            var userLogin = Activator.CreateInstance<TLogin>();
+            var userLogin = Activator.CreateInstance<UserLogin>();
             userLogin.UserId = user.Id;
             userLogin.LoginProvider = login.ProviderKey;
             userLogin.ProviderKey = login.ProviderKey;
@@ -126,7 +121,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(0);
         }
 
-        public async Task<TUser> FindAsync(UserLoginInfo login)
+        public async Task<User> FindAsync(UserLoginInfo login)
         {
             if (login == null)
             {
@@ -136,19 +131,19 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             var provider = login.LoginProvider;
             var key = login.ProviderKey;
 
-            var userLogin = await this.db.Set<TLogin>().FirstOrDefaultAsync(l => l.LoginProvider == provider && l.ProviderKey == key);
+            var userLogin = await this.db.UserLogins.FirstOrDefaultAsync(l => l.LoginProvider == provider && l.ProviderKey == key);
 
             if (userLogin == null)
             {
-                return default(TUser);
+                return default(User);
             }
 
-            return await this.db.Set<TUser>()
+            return await this.db.Users
                 .Include(u => u.Logins).Include(u => u.Roles).Include(u => u.Claims)
                 .FirstOrDefaultAsync(u => u.Id.Equals(userLogin.UserId));
         }
 
-        public Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user)
+        public Task<IList<UserLoginInfo>> GetLoginsAsync(User user)
         {
             if (user == null)
             {
@@ -158,7 +153,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult<IList<UserLoginInfo>>(user.Logins.Select(l => new UserLoginInfo(l.LoginProvider, l.ProviderKey)).ToList());
         }
 
-        public Task RemoveLoginAsync(TUser user, UserLoginInfo login)
+        public Task RemoveLoginAsync(User user, UserLoginInfo login)
         {
             if (user == null)
             {
@@ -183,9 +178,9 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(0);
         } 
 
-        //// IUserClaimStore<TUser, TKey>
+        //// IUserClaimStore<User, int>
 
-        public Task AddClaimAsync(TUser user, Claim claim)
+        public Task AddClaimAsync(User user, Claim claim)
         {
             if (user == null)
             {
@@ -197,7 +192,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
                 throw new ArgumentNullException("claim");
             }
 
-            var item = Activator.CreateInstance<TClaim>();
+            var item = Activator.CreateInstance<UserClaim>();
             item.UserId = user.Id;
             item.ClaimType = claim.Type;
             item.ClaimValue = claim.Value;
@@ -205,7 +200,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(0);
         }
 
-        public Task<IList<Claim>> GetClaimsAsync(TUser user)
+        public Task<IList<Claim>> GetClaimsAsync(User user)
         {
             if (user == null)
             {
@@ -215,7 +210,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult<IList<Claim>>(user.Claims.Select(c => new Claim(c.ClaimType, c.ClaimValue)).ToList());
         }
 
-        public Task RemoveClaimAsync(TUser user, Claim claim)
+        public Task RemoveClaimAsync(User user, Claim claim)
         {
             if (user == null)
             {
@@ -232,17 +227,17 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
                 user.Claims.Remove(item);
             }
 
-            foreach (var item in this.db.Set<TClaim>().Where(uc => uc.UserId.Equals(user.Id) && uc.ClaimValue == claim.Value && uc.ClaimType == claim.Type).ToList())
+            foreach (var item in this.db.UserClaims.Where(uc => uc.UserId.Equals(user.Id) && uc.ClaimValue == claim.Value && uc.ClaimType == claim.Type).ToList())
             {
-                this.db.Set<TClaim>().Remove(item);
+                this.db.UserClaims.Remove(item);
             }
 
             return Task.FromResult(0);
         } 
 
-        //// IUserRoleStore<TUser, TKey>
+        //// IUserRoleStore<User, int>
 
-        public Task AddToRoleAsync(TUser user, string roleName)
+        public Task AddToRoleAsync(User user, string roleName)
         {
             if (user == null)
             {
@@ -254,7 +249,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
                 throw new ArgumentException(Resources.ValueCannotBeNullOrEmpty, "roleName");
             }
 
-            var userRole = this.db.Set<TRole>().SingleOrDefault(r => r.Name == roleName);
+            var userRole = this.db.UserRoles.SingleOrDefault(r => r.Name == roleName);
 
             if (userRole == null)
             {
@@ -265,17 +260,17 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(0);
         }
 
-        public Task<IList<string>> GetRolesAsync(TUser user)
+        public Task<IList<string>> GetRolesAsync(User user)
         {
             if (user == null)
             {
                 throw new ArgumentNullException("user");
             }
 
-            return Task.FromResult<IList<string>>(user.Roles.Join(this.db.Set<TRole>(), ur => ur.Id, r => r.Id, (ur, r) => r.Name).ToList());
+            return Task.FromResult<IList<string>>(user.Roles.Join(this.db.UserRoles, ur => ur.Id, r => r.Id, (ur, r) => r.Name).ToList());
         }
 
-        public Task<bool> IsInRoleAsync(TUser user, string roleName)
+        public Task<bool> IsInRoleAsync(User user, string roleName)
         {
             if (user == null)
             {
@@ -289,10 +284,10 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
 
             return
                 Task.FromResult<bool>(
-                    this.db.Set<TRole>().Any(r => r.Name == roleName && r.Users.Any(u => u.Id.Equals(user.Id))));
+                    this.db.UserRoles.Any(r => r.Name == roleName && r.Users.Any(u => u.Id.Equals(user.Id))));
         }
 
-        public Task RemoveFromRoleAsync(TUser user, string roleName)
+        public Task RemoveFromRoleAsync(User user, string roleName)
         {
             if (user == null)
             {
@@ -314,9 +309,9 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(0);
         } 
 
-        //// IUserSecurityStampStore<TUser, TKey>
+        //// IUserSecurityStampStore<User, int>
 
-        public Task<string> GetSecurityStampAsync(TUser user)
+        public Task<string> GetSecurityStampAsync(User user)
         {
             if (user == null)
             {
@@ -326,7 +321,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(user.SecurityStamp);
         }
 
-        public Task SetSecurityStampAsync(TUser user, string stamp)
+        public Task SetSecurityStampAsync(User user, string stamp)
         {
             if (user == null)
             {
@@ -337,16 +332,16 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(0);
         } 
 
-        //// IUserEmailStore<TUser, TKey>
+        //// IUserEmailStore<User, int>
 
-        public Task<TUser> FindByEmailAsync(string email)
+        public Task<User> FindByEmailAsync(string email)
         {
-            return this.db.Set<TUser>()
+            return this.db.Users
                 .Include(u => u.Logins).Include(u => u.Roles).Include(u => u.Claims)
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public Task<string> GetEmailAsync(TUser user)
+        public Task<string> GetEmailAsync(User user)
         {
             if (user == null)
             {
@@ -356,7 +351,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(user.Email);
         }
 
-        public Task<bool> GetEmailConfirmedAsync(TUser user)
+        public Task<bool> GetEmailConfirmedAsync(User user)
         {
             if (user == null)
             {
@@ -366,7 +361,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(user.EmailConfirmed);
         }
 
-        public Task SetEmailAsync(TUser user, string email)
+        public Task SetEmailAsync(User user, string email)
         {
             if (user == null)
             {
@@ -377,7 +372,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(0);
         }
 
-        public Task SetEmailConfirmedAsync(TUser user, bool confirmed)
+        public Task SetEmailConfirmedAsync(User user, bool confirmed)
         {
             if (user == null)
             {
@@ -388,9 +383,9 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(0);
         }
 
-        //// IUserPhoneNumberStore<TUser, TKey>
+        //// IUserPhoneNumberStore<User, int>
 
-        public Task<string> GetPhoneNumberAsync(TUser user)
+        public Task<string> GetPhoneNumberAsync(User user)
         {
             if (user == null)
             {
@@ -400,7 +395,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(user.PhoneNumber);
         }
 
-        public Task<bool> GetPhoneNumberConfirmedAsync(TUser user)
+        public Task<bool> GetPhoneNumberConfirmedAsync(User user)
         {
             if (user == null)
             {
@@ -410,7 +405,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(user.PhoneNumberConfirmed);
         }
 
-        public Task SetPhoneNumberAsync(TUser user, string phoneNumber)
+        public Task SetPhoneNumberAsync(User user, string phoneNumber)
         {
             if (user == null)
             {
@@ -421,7 +416,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(0);
         }
 
-        public Task SetPhoneNumberConfirmedAsync(TUser user, bool confirmed)
+        public Task SetPhoneNumberConfirmedAsync(User user, bool confirmed)
         {
             if (user == null)
             {
@@ -432,9 +427,9 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(0);
         }
 
-        //// IUserTwoFactorStore<TUser, TKey>
+        //// IUserTwoFactorStore<User, int>
 
-        public Task<bool> GetTwoFactorEnabledAsync(TUser user)
+        public Task<bool> GetTwoFactorEnabledAsync(User user)
         {
             if (user == null)
             {
@@ -444,7 +439,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(user.TwoFactorEnabled);
         }
 
-        public Task SetTwoFactorEnabledAsync(TUser user, bool enabled)
+        public Task SetTwoFactorEnabledAsync(User user, bool enabled)
         {
             if (user == null)
             {
@@ -455,9 +450,9 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(0);
         }
 
-        //// IUserLockoutStore<TUser, TKey>
+        //// IUserLockoutStore<User, int>
 
-        public Task<int> GetAccessFailedCountAsync(TUser user)
+        public Task<int> GetAccessFailedCountAsync(User user)
         {
             if (user == null)
             {
@@ -467,7 +462,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(user.AccessFailedCount);
         }
 
-        public Task<bool> GetLockoutEnabledAsync(TUser user)
+        public Task<bool> GetLockoutEnabledAsync(User user)
         {
             if (user == null)
             {
@@ -477,7 +472,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(user.LockoutEnabled);
         }
 
-        public Task<DateTimeOffset> GetLockoutEndDateAsync(TUser user)
+        public Task<DateTimeOffset> GetLockoutEndDateAsync(User user)
         {
             if (user == null)
             {
@@ -490,7 +485,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
                     new DateTimeOffset());
         }
 
-        public Task<int> IncrementAccessFailedCountAsync(TUser user)
+        public Task<int> IncrementAccessFailedCountAsync(User user)
         {
             if (user == null)
             {
@@ -501,7 +496,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(user.AccessFailedCount);
         }
 
-        public Task ResetAccessFailedCountAsync(TUser user)
+        public Task ResetAccessFailedCountAsync(User user)
         {
             if (user == null)
             {
@@ -512,7 +507,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(0);
         }
 
-        public Task SetLockoutEnabledAsync(TUser user, bool enabled)
+        public Task SetLockoutEnabledAsync(User user, bool enabled)
         {
             if (user == null)
             {
@@ -523,7 +518,7 @@ namespace KriaSoft.AspNet.Identity.EntityFramework
             return Task.FromResult(0);
         }
 
-        public Task SetLockoutEndDateAsync(TUser user, DateTimeOffset lockoutEnd)
+        public Task SetLockoutEndDateAsync(User user, DateTimeOffset lockoutEnd)
         {
             if (user == null)
             {

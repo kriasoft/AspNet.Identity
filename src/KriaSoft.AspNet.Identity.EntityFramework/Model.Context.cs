@@ -7,18 +7,16 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace KriaSoft.AspNet.Identity.DbFirst.Data
+namespace KriaSoft.AspNet.Identity.EntityFramework
 {
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    using KriaSoft.AspNet.Identity.EntityFramework;
-    
-    public partial class ApplicationDbContext : IdentityDbContext<int, User, UserLogin, UserRole, UserClaim>
+    public partial class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext()
-            : base()
+            : base("name=ApplicationDbContext")
         {
         }
     
@@ -27,5 +25,9 @@ namespace KriaSoft.AspNet.Identity.DbFirst.Data
             throw new UnintentionalCodeFirstException();
         }
     
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<UserClaim> UserClaims { get; set; }
+        public virtual DbSet<UserLogin> UserLogins { get; set; }
+        public virtual DbSet<UserRole> UserRoles { get; set; }
     }
 }

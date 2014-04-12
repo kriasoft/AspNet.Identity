@@ -24,10 +24,6 @@ foreach (var entity in typeMapper.GetItemsToGenerate<EntityType>(itemCollection)
     BeginNamespace(code);
 #>
 <#=codeStringGenerator.UsingDirectives(inHeader: false)#>
-<# if (new[] { "User", "UserLogin", "UserRole", "UserClaim" }.Contains(entity.Name)) { #>
-using KriaSoft.AspNet.Identity.EntityFramework;
-
-<# } #>
 <#=codeStringGenerator.EntityClassOpening(entity)#>
 {
 <#
@@ -50,8 +46,6 @@ using KriaSoft.AspNet.Identity.EntityFramework;
 
         foreach (var navigationProperty in collectionNavigationProperties)
         {
-            if (entity.Name == "User" && new[] { "Logins", "Roles", "Claims" }.Contains(navigationProperty.Name)) continue;
-            if (entity.Name == "UserRole" && new[] { "Users" }.Contains(navigationProperty.Name)) continue;
 #>
         this.<#=code.Escape(navigationProperty)#> = new HashSet<<#=typeMapper.GetTypeName(navigationProperty.ToEndMember.GetEntityType())#>>();
 <#
@@ -74,10 +68,6 @@ using KriaSoft.AspNet.Identity.EntityFramework;
     {
         foreach (var edmProperty in simpleProperties)
         {
-            if (entity.Name == "User" && new[] { "Id", "UserName", "Email", "EmailConfirmed", "PasswordHash", "SecurityStamp", "PhoneNumber", "PhoneNumberConfirmed", "TwoFactorEnabled", "LockoutEndDateUtc", "LockoutEnabled", "AccessFailedCount" }.Contains(edmProperty.Name)) continue;
-            if (entity.Name == "UserLogin" && new[] { "UserId", "LoginProvider", "ProviderKey" }.Contains(edmProperty.Name)) continue;
-            if (entity.Name == "UserRole" && new[] { "Id", "Name" }.Contains(edmProperty.Name)) continue;
-            if (entity.Name == "UserClaim" && new[] { "Id", "UserId", "ClaimType", "ClaimValue" }.Contains(edmProperty.Name)) continue;
 #>
     <#=codeStringGenerator.Property(edmProperty)#>
 <#
@@ -105,8 +95,6 @@ using KriaSoft.AspNet.Identity.EntityFramework;
 <#
         foreach (var navigationProperty in navigationProperties)
         {
-            if (entity.Name == "User" && new[] { "Users", "Logins", "Roles", "Claims" }.Contains(navigationProperty.Name)) continue;
-            if (entity.Name == "UserRole" && new[] { "Users" }.Contains(navigationProperty.Name)) continue;
 #>
     <#=codeStringGenerator.NavigationProperty(navigationProperty)#>
 <#
@@ -318,21 +306,13 @@ public class CodeStringGenerator
     
     public string EntityClassOpening(EntityType entity)
     {
-        string baseClass = null;
-        switch (entity.Name)
-        {
-            case "User": baseClass = "IdentityUser<int, UserLogin, UserRole, UserClaim>"; break;
-            case "UserLogin": baseClass = "IdentityLogin<int>"; break;
-            case "UserRole": baseClass = "IdentityRole<int, IdentityUser<int, UserLogin, UserRole, UserClaim>>"; break;
-            case "UserClaim": baseClass = "IdentityClaim<int>"; break;
-        }
         return string.Format(
             CultureInfo.InvariantCulture,
             "{0} {1}partial class {2}{3}",
             Accessibility.ForType(entity),
             _code.SpaceAfter(_code.AbstractOption(entity)),
             _code.Escape(entity),
-            _code.StringBefore(" : ", baseClass ?? _typeMapper.GetTypeName(entity.BaseType)));
+            _code.StringBefore(" : ", _typeMapper.GetTypeName(entity.BaseType)));
     }
     
     public string EnumOpening(SimpleType enumType)

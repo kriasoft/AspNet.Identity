@@ -1,18 +1,12 @@
-ASP.NET Identity Providers
-==========================
+ASP.NET Identity with EF DbFirst
+================================
 
-> [ASP.NET Identity](http://asp.net/identity) providers that are based on Entity
-> Framework and optimized for use with both **EF Code-First** and **EF Database-First**.
+> This projects demonstrates how to use [ASP.NET Identity](http://asp.net/identity) with
+> Entity Framework Database-First model.
 
-![ASP.NET Identity Model](http://i.imgur.com/3LpA6rH.png)
+![ASP.NET Identity Model](http://i.imgur.com/KHDqq3B.png)
 
-### Homepage
-
-> https://github.com/KriaSoft/AspNet.Identity
-
-### Documentation
-
-> https://github.com/KriaSoft/AspNet.Identity/docs
+[Getting Started with ASP.NET Identity and EF Database-First](./docs/Database-First.md)
 
 ### Authors
 

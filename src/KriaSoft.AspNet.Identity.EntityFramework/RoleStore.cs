@@ -9,58 +9,57 @@ using Microsoft.AspNet.Identity;
 
 namespace KriaSoft.AspNet.Identity.EntityFramework
 {
-    public partial class RoleStore<TKey, TRole, TUser> : IQueryableRoleStore<TRole, TKey>
-        where TRole : IdentityRole<TKey, TUser>
+    public class RoleStore : IQueryableRoleStore<UserRole, int>
     {
-        private readonly DbContext db;
+        private readonly ApplicationDbContext db;
 
-        public RoleStore(DbContext db)
+        public RoleStore(ApplicationDbContext db)
         {
             this.db = db;
         }
 
-        //// IQueryableRoleStore<TRole, TKey>
+        //// IQueryableRoleStore<UserRole, TKey>
 
-        public IQueryable<TRole> Roles
+        public IQueryable<UserRole> Roles
         {
-            get { return this.db.Set<TRole>(); }
+            get { return this.db.UserRoles; }
         }
 
-        //// IRoleStore<TRole, TKey>
+        //// IRoleStore<UserRole, TKey>
 
-        public virtual Task CreateAsync(TRole role)
-        {
-            if (role == null)
-            {
-                throw new ArgumentNullException("role");
-            }
-
-            this.db.Set<TRole>().Add(role);
-            return this.db.SaveChangesAsync();
-        }
-
-        public Task DeleteAsync(TRole role)
+        public virtual Task CreateAsync(UserRole role)
         {
             if (role == null)
             {
                 throw new ArgumentNullException("role");
             }
 
-            this.db.Set<TRole>().Remove(role);
+            this.db.UserRoles.Add(role);
             return this.db.SaveChangesAsync();
         }
 
-        public Task<TRole> FindByIdAsync(TKey roleId)
+        public Task DeleteAsync(UserRole role)
         {
-            return this.db.Set<TRole>().FindAsync(new[] { roleId });
+            if (role == null)
+            {
+                throw new ArgumentNullException("role");
+            }
+
+            this.db.UserRoles.Remove(role);
+            return this.db.SaveChangesAsync();
         }
 
-        public Task<TRole> FindByNameAsync(string roleName)
+        public Task<UserRole> FindByIdAsync(int roleId)
         {
-            return this.db.Set<TRole>().FirstOrDefaultAsync(r => r.Name == roleName);
+            return this.db.UserRoles.FindAsync(new[] { roleId });
         }
 
-        public Task UpdateAsync(TRole role)
+        public Task<UserRole> FindByNameAsync(string roleName)
+        {
+            return this.db.UserRoles.FirstOrDefaultAsync(r => r.Name == roleName);
+        }
+
+        public Task UpdateAsync(UserRole role)
         {
             if (role == null)
             {

@@ -1,82 +1,29 @@
-ASP.NET Identity Provider with Database-First
----------------------------------------------
+Getting Started with ASP.NET Identity and EF DbFirst
+----------------------------------------------------
 
 ### 1. Publish ASP.NET Identity Database Project
 
-> See: `./src/KriaSoft.AspNet.Identity.Database`
+SQL Database Project (SSDT):
+
+> `./src/KriaSoft.AspNet.Identity.Database`
 
 ### 2. Generate Entity Framework model using EF Designer
 
-> See: `./src/examples/KriaSoft.AspNet.Identity.DbFirst/Data/Model.edmx`
+See ASP.NET Identity Database-First model example:
 
-### 3. Update EF T4 templates to make the generated model match the provider classes
+> `./src/KriaSoft.AspNet.Identity.EntityFramework/Model.edmx`
 
-After you update .tt templates, the generated EF model classes should look like this:
+### 3. Copy UserEntity.cs, UserRoleEntity.cs, RoleStore.cs, UserStore.cs and Resources into your project
 
-#### Model.Context.cs (before):
+> See: `./src/examples/KriaSoft.AspNet.Identity.EntityFramework/`
 
-```
-    using System;
-    using System.Data.Entity;
-    using System.Data.Entity.Infrastructure;
-    
-    public partial class ApplicationDbContext : DbContext
-    {
-        ...
-        public virtual DbSet<User> Users { get; set; }
-        ...
-    }
-```
+And make sure property names in User, UserLogin, UserRole and UserClaim entities match the ones used in RoleStore and UserStore providers.
 
-#### Model.Context.cs (after):
+### 4. Done! You can use it like this:
 
 ```
-    using System;
-    using System.Data.Entity;
-    using System.Data.Entity.Infrastructure;
-    
-    using KriaSoft.AspNet.Identity.EntityFramework;
-    
-    public partial class ApplicationDbContext : IdentityDbContext<int, User, Login, Role, Claim>
-    {
-        ...
-    }
+var db = new ApplicationDbContext(); // your custom EF model
+var userManager = new UserManager(new UserStore(db));
+
+userManager.CreateUserAsync(new User { UserName = "demouser" });
 ```
-
-#### User.cs (before):
-
-```
-    using System;
-    using System.Collections.Generic;
-    
-    public partial class User
-    {
-        public User()
-        {
-            ...
-        }
-    
-        public int UserID { get; set; }
-        public string UserName { get; set; }
-        public string Email { get; set; }
-        ...
-    }
-```
-
-#### User.cs (after):
-
-```
-    using System;
-    using System.Collections.Generic;
-    
-    using KriaSoft.AspNet.Identity.EntityFramework;
-    
-    public partial class User : IdentityUser<int, Login, Role, Claim>
-    {
-        ...
-    }
-```
-
-**Note**: You can find modified .tt templates here:
-
-> `./examples/KriaSoft.AspNet.Identity.DbFirst/Data/*.tt`

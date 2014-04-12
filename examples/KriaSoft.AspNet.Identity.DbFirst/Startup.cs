@@ -1,5 +1,4 @@
 ﻿using KriaSoft.AspNet.Identity.DbFirst;
-using KriaSoft.AspNet.Identity.DbFirst.Data;
 using KriaSoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity;
 using Microsoft.Owin;
@@ -14,7 +13,7 @@ namespace KriaSoft.AspNet.Identity.DbFirst
         public void Configuration(IAppBuilder app)
         {
             var db = new ApplicationDbContext();
-            var userManager = new UserManager<User, int>(new UserStore<int, User, UserLogin, UserRole, UserClaim>(db));
+            var userManager = new UserManager<User, int>(new UserStore(db));
             var user = userManager.FindByNameAsync("demouser").Result;
 
             if (user == null)
@@ -23,8 +22,6 @@ namespace KriaSoft.AspNet.Identity.DbFirst
                 user = userManager.FindAsync("demouser", "Passw0rd").Result;
                 System.Diagnostics.Debug.Assert(user != null && user.UserName == "demouser");
             }
-
-            user = userManager.FindByIdAsync(1004).Result;
 
             app.Run(context =>
             {

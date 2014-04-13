@@ -8,6 +8,12 @@ ASP.NET Identity with EF DbFirst
 
 ![ASP.NET Identity Model](http://i.imgur.com/KHDqq3B.png)
 
+### Download
+
+http://visualstudiogallery.msdn.microsoft.com/6780f8e4-d204-4e88-83c2-853098727ffb
+
+![ASP.NET Identity Database Project Template](http://i.imgur.com/5rxiyS2.png)
+
 ![ASP.NET Identity Database](http://i.imgur.com/9jV1deH.png)
 
 ### Authors

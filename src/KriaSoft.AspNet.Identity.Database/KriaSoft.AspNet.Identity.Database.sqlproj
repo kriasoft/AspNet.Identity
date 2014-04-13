@@ -58,10 +58,15 @@
   <ItemGroup>
     <Folder Include="Properties" />
     <Folder Include="Publish Profiles" />
+    <Folder Include="Reference Data" />
+    <Folder Include="Scripts" />
     <Folder Include="Tables" />
     <Folder Include="User Defined Types" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Reference Data\User.sql" />
+    <None Include="Reference Data\UserRole.sql" />
+    <None Include="Reference Data\UserUserRole.sql" />
     <Build Include="Tables\User.sql" />
     <Build Include="Tables\UserClaim.sql" />
     <Build Include="Tables\UserLogin.sql" />
@@ -71,5 +76,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Publish Profiles\Local.publish.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Scripts\PostDeployment.sql" />
   </ItemGroup>
 </Project>

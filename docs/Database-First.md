@@ -25,9 +25,9 @@ And make sure property names in User, UserLogin, UserRole and UserClaim entities
 
 ### 4. Done! You can use it like this:
 
-```
+```csharp
 var db = new ApplicationDbContext(); // your custom EF model
-var userManager = new UserManager(new UserStore(db));
+var userManager = new UserManager<User, int>(new UserStore(db));
 
 userManager.CreateUserAsync(new User { UserName = "demouser" });
 ```

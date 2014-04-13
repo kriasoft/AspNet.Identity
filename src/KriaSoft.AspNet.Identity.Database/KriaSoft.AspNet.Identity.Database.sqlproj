@@ -80,4 +80,9 @@
   <ItemGroup>
     <PostDeploy Include="Scripts\PostDeployment.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <Build Include="User Defined Types\Email.sql" />
+    <Build Include="User Defined Types\Phone.sql" />
+    <Build Include="User Defined Types\Name.sql" />
+  </ItemGroup>
 </Project>

@@ -72,17 +72,15 @@
     <Build Include="Tables\UserLogin.sql" />
     <Build Include="Tables\UserRole.sql" />
     <Build Include="Tables\UserUserRole.sql" />
+    <Build Include="User Defined Types\Email.sql" />
     <Build Include="User Defined Types\Flag.sql" />
+    <Build Include="User Defined Types\Name.sql" />
+    <Build Include="User Defined Types\Phone.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Publish Profiles\Local.publish.xml" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\PostDeployment.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <Build Include="User Defined Types\Email.sql" />
-    <Build Include="User Defined Types\Phone.sql" />
-    <Build Include="User Defined Types\Name.sql" />
   </ItemGroup>
 </Project>

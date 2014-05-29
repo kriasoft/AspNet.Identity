@@ -1,0 +1,83 @@
+﻿<!doctype html>
+<html class="no-js" lang="" ng-app="app">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>ASP.NET Identity Demo</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap-theme.min.css">
+</head>
+<body ng-controller="MainCtrl">
+    <!--[if lt IE 8]>
+        <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+    
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a href="#/" class="navbar-brand">ASP.NET Identity Sample</a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="#/" class="active">Home</a></li>
+                    <li><a href="#/about">About</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li ng-if="!$root.token"><a href="#/login">Login</a></li>
+                    <li ng-if="$root.token"><a href="#/account">{{ $root.token.email }}</a></li>
+                    <li ng-if="$root.token"><a href="#/" ng-click="logout()">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div ng-view class="container"></div>
+
+    <script type="text/ng-template" id="/home">
+        <h2>ASP.NET Identity Sample</h2>
+        <p>See the source code on GitHub:</p>
+        <p><a href="https://github.com/KriaSoft/AspNet.Identity">https://github.com/KriaSoft/AspNet.Identity</a></p>
+    </script>
+
+    <script type="text/ng-template" id="/about">
+        <h2>About Us</h2>
+        <p>This is just a demo page.</p>
+    </script>
+
+    <script type="text/ng-template" id="/page-not-found">
+        <h2>Error 404:</h2>
+        <p>The page you're looking for was not found.</p>
+        <p><a href="#/">Go back to the home page.</a></p>
+    </script>
+
+    <script type="text/ng-template" id="/login">
+        <h2>Sign In</h2>
+        <form class="form-horizontal" role="form" ng-submit="login(username, password)">
+            <div class="form-group">
+                <label for="username" class="control-label col-sm-6">Username</label>
+                <div class="col-sm-4">
+                    <input id="username" type="text" class="form-control" ng-model="username" placeholder="Username" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password" class="control-label col-sm-6">Password</label>
+                <div class="col-sm-4">
+                    <input id="password" type="password" class="form-control" ng-model="password" placeholder="Password" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-6 col-sm-4">
+                    <button type="submit" class="btn btn-default">Sign In</button>
+                </div>
+            </div>
+        </form>
+    
+    </script>
+
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.10/angular.min.js"></script>
+    <script src="//code.angularjs.org/1.3.0-beta.10/angular-route.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
